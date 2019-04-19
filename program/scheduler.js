@@ -55,7 +55,7 @@ class Scheduler {
                     });
                 }
             });
-            }, { scheduled: false, timezone: "Europe/Helsinki" });
+            }, { scheduled: true, timezone: "Europe/Helsinki" });
     }
 
     /* Starts Cron Schedule */
