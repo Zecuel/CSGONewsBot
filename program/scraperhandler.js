@@ -34,6 +34,8 @@ async function GetOSRSUpdate(){
        scraper.GetNewsBody()
     ]);
 
+    console.debug(scraper);
+
     if (!scraper.title) {
         throw new Error("Error while getting news article title.");
     }

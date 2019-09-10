@@ -89,17 +89,55 @@ class OSRSScraper {
     GetNewsTitle(){
         return new Promise((resolve, reject) => {
             rp(this.link).then((html) => {
-                this.title = $("#osrsArticleHolder > div.left > h2", html)[0].children[0].data;
-                resolve();
+
+                let title = null;
+
+                let terms = [
+                    "#osrsArticleHolder > div.left > h2",
+                    "#osrsArticleHolder > div.news-article-header__titles > h2"
+                ];
+
+                terms.forEach((term) => {
+
+                    try {
+                        title = $(term, html)[0].children[0].data;
+                        resolve();
+                    } catch (error) {  }
+
+                });
+
+                if (!title) {
+                    return reject(new Error("Couldn't find news title."));
+                } else {
+                    this.title = title;
+                    resolve();
+                }
+
             }).catch((error) => { return reject(error); })
         });
     }
+
     GetNewsBody(){
         return new Promise((resolve, reject) => {
             let output = ["__**Update topics**__:"], bodies = [];
             rp(this.link).then((html) => {
 
-                let articleHolderChildren = $(".osrsArticleContentText", html)[0].children;
+                let articleHolderChildren = null;
+
+                let terms = [
+                    "div.news-article-content",
+                    "div.osrsArticleContentText"
+                ];
+
+                terms.forEach((term) => {
+                    try {
+                        articleHolderChildren = $(term, html)[0].children;
+                    } catch (error) {  }
+                });
+
+                if (!articleHolderChildren) {
+                    return reject(new Error("Couldn't find news body."));
+                }
 
                 articleHolderChildren.forEach((child) => {
                     if (child.name === "center"){
