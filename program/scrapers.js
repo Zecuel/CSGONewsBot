@@ -1,6 +1,8 @@
 const rp = require('request-promise');
 const $ = require('cheerio');
 
+const MAX_CHAR_LIMIT = 2000;
+
 class CSGOScraper {
     constructor(){
         this.url = "https://blog.counter-strike.net/index.php/category/updates/";
@@ -25,7 +27,8 @@ class CSGOScraper {
     }
     GetNewsBody(){
         return new Promise((resolve, reject) => {
-            let output = [];
+            let output = [], bodies = [];
+
             rp(this.link).then((html) => {
 
                 let childCount = $("div.inner_post p", html).length;
@@ -34,19 +37,28 @@ class CSGOScraper {
                     for (let y = 0; y < childCount; y++){
                         let _data = ($("div.inner_post p", html)[i].children[y].data);
                         if (_data && _data !== ""){
-                            output.push(_data.replace(/\n/g, "") + "\n");
+                            _data = _data.replace(/\n/g, "");
+                            output.push(_data);
                         }
                     }
                 }
 
                 let body = "";
+
                 output.forEach((line) => {
+                    if (body.length + line.length >= MAX_CHAR_LIMIT){
+                        bodies.push(body);
+                        body = "";
+                    }
                     body += line;
                     if (!line.endsWith("\n")){ body += "\n"; }
                 });
+
                 body += "\n";
 
-                this.body = body;
+                bodies.push(body);
+
+                this.bodies = bodies;
                 resolve();
             }).catch((error) => { return reject(error); })
         });
@@ -84,10 +96,8 @@ class OSRSScraper {
     }
     GetNewsBody(){
         return new Promise((resolve, reject) => {
-            let output = [];
+            let output = ["__**Update topics**__:"], bodies = [];
             rp(this.link).then((html) => {
-
-                this.body = "";
 
                 let articleHolderChildren = $(".osrsArticleContentText", html)[0].children;
 
@@ -98,8 +108,9 @@ class OSRSScraper {
                                 child.children.forEach((child) => {
                                     if (child.type === "text"){
                                         if (child.data !== "\n"){
-                                            let headline = child.data;
-                                            output.push(headline);
+                                            let data = child.data;
+                                            data = data.replace(/\n/g, "");
+                                            output.push(data);
                                         }
                                     }
                                 });
@@ -108,9 +119,79 @@ class OSRSScraper {
                     }
                 });
 
+                let body = "";
+
                 output.forEach((line) => {
-                    this.body += "- *" + line + "*\n";
+                    if (body.length + line.length >= MAX_CHAR_LIMIT) {
+                        bodies.push(body);
+                        body = "";
+                    }
+                    body += "- *" + line + "*\n";
                 });
+
+                bodies.push(body);
+
+                this.bodies = bodies;
+                resolve();
+            }).catch((error) => { return reject(error); })
+        });
+    }
+}
+
+class DOTA2Scraper {
+    constructor(){
+        this.url = "http://www.dota2.com/news/updates/";
+    }
+
+    GetNewsLink(){
+        return new Promise((resolve, reject) => {
+            rp(this.url).then((html) => {
+                this.link = $("div[id^='post-'] > h2 > a", html)[0].attribs.href;
+
+                resolve();
+            }).catch((error) => { return reject(error); });
+        });
+    }
+
+    GetNewsTitle(){
+        return new Promise((resolve, reject) => {
+            rp(this.link).then((html) => {
+                this.title = $("div[id^='post-'] > h2 > a", html)[0].children[0].data;
+
+                resolve();
+            }).catch((error) => { return reject(error); })
+        });
+    }
+    GetNewsBody(){
+        return new Promise((resolve, reject) => {
+            let output = [], bodies = [];
+            rp(this.link).then((html) => {
+
+                let children = $(".entry-content", html)[0].children;
+
+                children.forEach((child) => {
+                    if (child.type === "text"){
+                        if (child.data){
+                            let data = child.data.replace(/\t/g, "");
+                            data = data.replace(/\n/g, "");
+                            output.push(data);
+                        }
+                    }
+                });
+
+                let body = "";
+
+                output.forEach((line) => {
+                    if (body.length + line.length >= MAX_CHAR_LIMIT) {
+                        bodies.push(body);
+                        body = "";
+                    }
+                    body += line + "\n";
+                });
+
+                bodies.push(body);
+
+                this.bodies = bodies;
 
                 resolve();
             }).catch((error) => { return reject(error); })
@@ -120,5 +201,6 @@ class OSRSScraper {
 
 module.exports = {
     CSGOScraper: CSGOScraper,
-    OSRSScraper: OSRSScraper
+    OSRSScraper: OSRSScraper,
+    DOTA2Scraper: DOTA2Scraper
 };

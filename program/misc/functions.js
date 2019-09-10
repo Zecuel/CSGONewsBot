@@ -24,7 +24,7 @@ async function SendNewsArticle(game, channels = [], sender = "user", ){
 
     console.log("Sending news article...");
 
-    let scraperOutput, link, title, body, image, messageTitle;
+    let scraperOutput, link, title, bodies, image, messageTitle;
 
     if (sender === "bot"){
         channels = await Database.GetChannels(game);
@@ -36,21 +36,25 @@ async function SendNewsArticle(game, channels = [], sender = "user", ){
 
             scraperOutput = await ScraperHandler.GetCSGOUpdate();
 
-            link = scraperOutput[0]; title = scraperOutput[1]; body = scraperOutput[2];
+            link = scraperOutput[0]; title = scraperOutput[1]; bodies = scraperOutput[2];
 
-            messageTitle = "__**Latest CS:GO news:**__\n";
+            messageTitle = "__**Latest CS:GO news:**__";
 
             if (sender === "bot"){
-                messageTitle = "__**New CS:GO update released!**__\n";
-                if (await Database.NewsArticleExists(game,title)){ return console.log("Old article."); }
+                messageTitle = "__**New CS:GO update released!**__";
+                const exists = await Database.NewsArticleExists(game,title);
+                if (exists) { return console.log("Old article."); }
             }
 
-
-            body = body.replace(/(\[[A-Za-z0-9]+])/g, (original) => {
-                return "\n**" + original + "**";
+            bodies.forEach((body)  => {
+                body.replace(/(\[[A-Za-z0-9]+])/g, (original) => {
+                    return "\n**" + original + "**";
+                });
             });
-            body = body.replace(/([A-Za-z0-9]+[:])/g, (original) => {
-                return "\n**" + original + "**";
+            bodies.forEach((body) => {
+                body.replace(/([A-Za-z0-9]+[:])/g, (original) => {
+                    return "\n**" + original + "**";
+                });
             });
 
             break;
@@ -59,16 +63,35 @@ async function SendNewsArticle(game, channels = [], sender = "user", ){
 
             scraperOutput = await ScraperHandler.GetOSRSUpdate();
 
-            link = scraperOutput[0]; title = scraperOutput[1]; body = scraperOutput[2];
+            link = scraperOutput[0]; title = scraperOutput[1]; bodies = scraperOutput[2];
 
-            messageTitle = "__**Latest OSRS news:**__\n\n";
+            messageTitle = "__**Latest OSRS news:**__";
 
             if (sender === "bot"){
-                messageTitle = "__**New OSRS update release!**__\n\n";
-                if (await Database.NewsArticleExists(game,title)){ return console.log("Old article"); }
+                messageTitle = "__**New OSRS update release!**__";
+                const exists = await Database.NewsArticleExists(game,title);
+                if (exists) { return console.log("Old article."); }
             }
 
-            messageTitle += "__**Update topics**__: \n";
+            break;
+        case 'dota2':
+            image = "dota2.jpg";
+
+            scraperOutput = await ScraperHandler.GetDOTA2Update();
+
+            link = scraperOutput[0]; title = scraperOutput[1]; bodies = scraperOutput[2];
+
+            messageTitle = "__**Latest DOTA2 news:**__";
+
+            if (sender === "bot"){
+                messageTitle = "__**New DOTA2 update release!**__";
+                const exists = await Database.NewsArticleExists(game,title);
+                if (exists) { return console.log("Old article."); }
+            }
+
+            bodies.forEach((body) => {
+                body.replace(/\t/g, "");
+            });
 
             break;
         default:
@@ -79,7 +102,11 @@ async function SendNewsArticle(game, channels = [], sender = "user", ){
         throw new Error("Invalid arguments in command.");
     }
 
-    body = body.replace(undefined, "");
+    bodies[0] = "_ _\n_ _\n" + bodies[0];
+
+    bodies.forEach((body) => {
+        body.replace(undefined, "");
+    });
 
     const embed = new Discord.RichEmbed()
         .setTitle("__**" + title + "**__")
@@ -101,7 +128,7 @@ async function SendNewsArticle(game, channels = [], sender = "user", ){
         name: "sendupdate",
         channels: channels,
         messageTitle: messageTitle,
-        body: body,
+        bodies: bodies,
         embed: embed
     }
 }
