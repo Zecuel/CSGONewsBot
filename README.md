@@ -42,6 +42,11 @@ Useful commands:
   * Get the latest news article instantly by running the command `!nb news <game>` on the desired Discord 
 text channel.
 
+## Changelog
+
+**10/09/2019**
+* Fixed bug with OSRS news scraper.
+
 ## Want to build your own version of this bot?
 **Here's how.**
 
