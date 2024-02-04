@@ -15,7 +15,7 @@
     "test": "mocha program/test"
   },
   "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
+    "cheerio": "^1.0.0-rc.12",
     "discord.js": "^11.4.2",
     "mysql": "^2.16.0",
     "node-cron": "^2.0.3",
