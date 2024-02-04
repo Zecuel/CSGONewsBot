@@ -19,6 +19,11 @@ This makes it easy to keep track of game updates without leaving the comfort of 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 | *csgo*
 * *Oldschool Runescape* &nbsp;&nbsp;&nbsp;| *osrs*
+* *Dota2*
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+| *dota2*
 
 
 ## How to use the bot
@@ -36,6 +41,11 @@ Useful commands:
 
   * Get the latest news article instantly by running the command `!nb news <game>` on the desired Discord 
 text channel.
+
+## Changelog
+
+**10/09/2019**
+* Fixed bug with OSRS news scraper.
 
 ## Want to build your own version of this bot?
 **Here's how.**
