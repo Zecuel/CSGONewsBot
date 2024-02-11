@@ -1,75 +1,42 @@
-const Scrapers = require('./scrapers');
+const scrapers = require("./scrapers");
 
-async function GetCSGOUpdate(){
-    const scraper = new Scrapers.CSGOScraper();
+async function getUpdate(scraper) {
+  await scraper.getNewsLink();
 
-    await scraper.GetNewsLink();
+  if (!scraper.link) {
+    throw new Error("Error while getting news article link.");
+  }
 
-    if (!scraper.link){ throw new Error("Error while getting news article link."); }
+  await Promise.all([scraper.getNewsTitle(), scraper.getNewsBody()]);
 
-    await Promise.all([
-        scraper.GetNewsTitle(),
-        scraper.GetNewsBody()
-    ]);
+  if (!scraper.title) {
+    throw new Error("Error while getting news article title.");
+  }
 
-    if (!scraper.title) {
-        throw new Error("Error while getting news article title.");
-    }
-    if (!scraper.bodies) {
-        throw new Error("Error while getting news article body.");
-    }
+  if (!scraper.bodies) {
+    throw new Error("Error while getting news article body.");
+  }
 
-    return [scraper.link, scraper.title, scraper.bodies];
+  return [scraper.link, scraper.title, scraper.bodies];
 }
 
-async function GetOSRSUpdate(){
-    const scraper = new Scrapers.OSRSScraper();
-
-    await scraper.GetNewsLink();
-
-    if (!scraper.link) { throw new Error("Error while getting news article link."); }
-
-    await Promise.all([
-       scraper.GetNewsTitle(),
-       scraper.GetNewsBody()
-    ]);
-
-    console.debug(scraper);
-
-    if (!scraper.title) {
-        throw new Error("Error while getting news article title.");
-    }
-    if (!scraper.bodies) {
-        throw new Error("Error while getting news article body.");
-    }
-
-    return [scraper.link, scraper.title, scraper.bodies];
+async function getCsgoUpdate() {
+  const scraper = new scrapers.CsgoScraper();
+  return getUpdate(scraper);
 }
 
-async function GetDOTA2Update(){
-    const scraper = new Scrapers.DOTA2Scraper();
+async function getOsrsUpdate() {
+  const scraper = new scrapers.OsrsScraper();
+  return getUpdate(scraper);
+}
 
-    await scraper.GetNewsLink();
-
-    if (!scraper.link) { throw new Error("Error while getting news article link."); }
-
-    await Promise.all([
-        scraper.GetNewsTitle(),
-        scraper.GetNewsBody()
-    ]);
-
-    if (!scraper.title) {
-        throw new Error("Error while getting news article title.");
-    }
-    if (!scraper.bodies) {
-        throw new Error("Error while getting news article body.");
-    }
-
-    return [scraper.link, scraper.title, scraper.bodies];
+async function getDota2Update() {
+  const scraper = new scrapers.Dota2Scraper();
+  return getUpdate(scraper);
 }
 
 module.exports = {
-    GetCSGOUpdate: GetCSGOUpdate,
-    GetOSRSUpdate: GetOSRSUpdate,
-    GetDOTA2Update: GetDOTA2Update
+  getCsgoUpdate,
+  getOsrsUpdate,
+  getDota2Update,
 };
